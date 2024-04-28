@@ -47,7 +47,7 @@ class FractalExplorer:
         self.natural_max_iter=self.max_iter #esto es para poder ver que cambios causa esto
         self.count_zoom=1
         self.how_many_zooms=0
-        self.max_zoom = 4
+        self.max_zoom = 5
         self.sm=shared_memory
         self.log = Logger("Fractal", config.LOGGING_LEVEL).logging
         self.log.info(f'Constructor for {__class__.__name__}')
@@ -66,7 +66,7 @@ class FractalExplorer:
         self.dt = 1
         self.pid = {
             'P': 0.01,  # Proportional gain
-            'I': 0.0,   # Integral gain
+            'I': 0.01,   # Integral gain
             'D': 0.02,  # Derivative gain
             'integral': 0.0,
             'last_error': None
@@ -117,30 +117,21 @@ class FractalExplorer:
                 imag = min_y + y * pixel_size_y
                 c = complex(real, imag)
                 z = 0.0j
-
                 for i in range(iters):
-
                     z = z * z + c
-
                     magnitud_squared=z.real*z.real+z.imag*z.imag
                     if  (magnitud_squared) >= 4.0:
                         if (magnitud_squared) <= condicion:
                             if i > condicion_iter:
-
                                 color_idx = int(math.log(float(i + 1)) * color_iter) % len_color_array
-
                             else:
-
-
                                 nu = i - math.log(math.log(float(magnitud_squared))) / log2
                                 nu = nu * color_iter
                                 color_idx = int(nu) % len_color_array
                         else:
-
                             if i > condicion_iter:
                                gradient = ((i - iters) / float(iters)) ** 4
                                color_idx = int(gradient * (len_color_array - 1)) % len_color_array
-
                             else:
                                 color_idx = i % color_iter
 
@@ -214,11 +205,13 @@ class FractalExplorer:
             self.how_many_zooms = self.how_many_zooms+1
 
             self.max_iter=self.const_max_inters
-            if self.how_many_zooms>=self.max_zoom:
+            if self.how_many_zooms>=self.max_zoom or self.sm['song_ended']:
                 self.reset_specs()
                 self.generate_frame=True
                 self.sm["zoom_center_changed"] = False #esto hace que frene el zoom y no siga una vez mas
                 return None
+            self.count_zoom = 60
+
             self.sm["zoom_center_changed"] = False
 
 
@@ -239,11 +232,11 @@ class FractalExplorer:
 
             self.max_iter=self.max_iter+0
             self.natural_max_iter = self.max_iter
-            self.count_zoom = 60
+
             self.max_iter=self.max_iter/self.count_zoom
             self.iter_step=self.max_iter
 
-
+        self.sm['doing_zoom'] = self.count_zoom > 1
         if self.count_zoom>1:
 
 
@@ -311,7 +304,7 @@ class FractalExplorer:
 
     def dibujar_cursor(self):
 
-        cursor = self.sm['cursor_position']
+        cursor = self.sm['cursor_position'][0]
 
         if len(cursor):
             x, y = cursor

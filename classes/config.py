@@ -5,8 +5,8 @@ CAMERA_INDEX = 0
 STEPS = 3
 
 # resolucion
-WIDTH = 720 #1920
-HEIGHT = 480 #1080
+WIDTH = 1080 #1920
+HEIGHT = 720 #1080
 
 PATH_TO_BASS_FOLDER = 'midis/bass'
 PATH_TO_DRUM_FOLDER = 'midis/drums'

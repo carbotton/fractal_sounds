@@ -56,11 +56,12 @@ class Interpreter:
             self.fps_actual = 1 / (new_frame_time - prev_frame_time)
             fps_text = f'FPS: {self.fps_actual:.2f}'
 
-            if hands_approaching and len(puntos) and not self.sm["zoom_center_changed"]: # semaforo para parar el zoom
+            if hands_approaching and len(puntos) and not self.sm["zoom_center_changed"] and not self.sm['doing_zoom']: # semaforo para parar el zoom
                 position = puntos[-1]
                 self.sm["click_x"] = int((1 - position[0]) * self.width)
                 self.sm["click_y"] = int(position[1] * self.height)
                 self.sm["zoom_center_changed"] = True
+                self.sm['doing_zoom'] = True
 
             if self.sm["zoom_center_changed"]:
                 self.log.info(f'zoom_center_changed borre todo')
@@ -88,7 +89,7 @@ class Interpreter:
 
             self.sm['array_of_points'] = self.detector.index_finger_array
             self.sm['note_velocity'] = note_velocity
-            self.sm['cursor_position'] = position
+            self.sm['cursor_position'] = [position,gesture]
 
 
             key = cv2.waitKey(1) & 0xFF
@@ -111,8 +112,6 @@ class Interpreter:
 
         if gesture == "mano derecha":
             self.log.debug(f' self.sm[COLOR_ITER] {gesture} previous {self.sm[COLOR_ITER]} new {mapped_value} ')
-
-
             self.sm[COLOR_ITER] = mapped_value
 
         elif gesture == "dibujando":

@@ -13,7 +13,7 @@ class Fractal_Player():
 
     def __init__(self, shared_memory: ParametersDto):
         self.log = Logger("Fractal Player", config.LOGGING_LEVEL).logging
-        self.log.info(f'Constr|uctor for {__class__.__name__}')
+        self.log.info(f'Constructor for {__class__.__name__}')
         self.sm = shared_memory
         self.outport = mido.open_output(player_config.LOOPMIDI_PORT)
         self.prev_x = 0

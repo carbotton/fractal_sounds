@@ -67,9 +67,12 @@ class Player:
         :param velocity_value: Desired velocity value (0-127).
         :return: Modified MIDI message.
         """
+
+
         if hasattr(msg, 'velocity'):
 
             if msg.channel == 9 and velocity_value < msg.velocity:
+
                 change_drums_velocity_enable = True
             else:
                 change_drums_velocity_enable = False
@@ -213,7 +216,7 @@ class Player:
 
         reaper_pan_value = 1 - pan_value  # Espejamos el paning
 
-        self.log.debug(f'VALOR DE PANING = {reaper_pan_value}')
+        self.log.debug(f'Panning = {reaper_pan_value}')
 
         address = f"/track/{track_number}/pan"
 
@@ -247,26 +250,27 @@ class Player:
         msg = self.transpose_note_in_scale(msg=msg, transpose_value=self.sm[config.PITCH])  # Set note to 60 (Middle C)
         # msg = self.modify_time(msg, 1.0)  # Set time to 1.0 second
         # self.solo_track(self.sm[config.VELOCITY])
-        cursor = self.sm['cursor_position']
+        cursor = self.sm['cursor_position'][0]
+        gesto = self.sm['cursor_position'][1]
         if cursor:
-            self.modify_volume_of_reaper_tracks()
-            self.modify_pan_of_reaper_tracks()
+            if gesto == "mano izquierda":
+                self.modify_volume_of_reaper_tracks(cursor)
+
+            self.modify_pan_of_reaper_tracks(cursor)
         return msg
 
-    def modify_pan_of_reaper_tracks(self):
+    def modify_pan_of_reaper_tracks(self,cursor):
 
-        cursor = self.sm['cursor_position']
+
         if len(cursor) > 0:
-
-            self.log.debug('MODIFY PAN')
             ##### PAN CONTROL
             pan_value = cursor[0]
             self.pan_reaper_track(track_number=5, pan_value=pan_value)
             ####################
 
-    def modify_volume_of_reaper_tracks(self):
+    def modify_volume_of_reaper_tracks(self,cursor):
 
-        cursor = self.sm['cursor_position']
+
         if len(cursor) > 1:
 
             # Escalamos mano para que a posicion 0.5 hallan -6dB
@@ -286,49 +290,93 @@ class Player:
         self.log.debug('Entrando a change_fx')
         if current_part == 'A':
             # Cambiamos bajo
-            track_number = 3
+            track_number = 1
+            self.toggle_reaper_fx(track_number, 2, True)  # Disable the second effect on track 4
+            self.toggle_reaper_fx(track_number, 3, False)  # Enable the first effect on track 4
+            self.toggle_reaper_fx(track_number, 4, False)  # Enable the first effect on track 4
+            track_number = 8
             self.toggle_reaper_fx(track_number, 2, True)  # Disable the second effect on track 4
             self.toggle_reaper_fx(track_number, 3, False)  # Enable the first effect on track 4
             self.toggle_reaper_fx(track_number, 4, False)  # Enable the first effect on track 4
 
             # Cambiamos melody
-            track_number = 4
+            track_number = 3
+            self.toggle_reaper_fx(track_number, 1, True)
+            self.toggle_reaper_fx(track_number, 2, False)  # Enable the first effect on track 4
+            self.toggle_reaper_fx(track_number, 3, False)  # Disable the second effect on track 4
+            track_number = 10
             self.toggle_reaper_fx(track_number, 1, True)
             self.toggle_reaper_fx(track_number, 2, False)  # Enable the first effect on track 4
             self.toggle_reaper_fx(track_number, 3, False)  # Disable the second effect on track 4
 
         elif current_part == 'B':
             # Cambiamos bajo
-            track_number = 3
+            track_number = 1
+            self.toggle_reaper_fx(track_number, 2, False)  # Disable the second effect on track 4
+            self.toggle_reaper_fx(track_number, 3, True)  # Disable the second effect on track 4
+            self.toggle_reaper_fx(track_number, 4, False)  # Enable the first effect on track 4
+            # Cambiamos bajo
+            track_number = 8
             self.toggle_reaper_fx(track_number, 2, False)  # Disable the second effect on track 4
             self.toggle_reaper_fx(track_number, 3, True)  # Disable the second effect on track 4
             self.toggle_reaper_fx(track_number, 4, False)  # Enable the first effect on track 4
 
             # Cambiamos melody
-            track_number = 4
+            track_number = 3
+            self.toggle_reaper_fx(track_number, 1, False)
+            self.toggle_reaper_fx(track_number, 2, True)  # Enable the first effect on track 4
+            self.toggle_reaper_fx(track_number, 3, False)  # Disable the second effect on track 4
+            track_number = 10
             self.toggle_reaper_fx(track_number, 1, False)
             self.toggle_reaper_fx(track_number, 2, True)  # Enable the first effect on track 4
             self.toggle_reaper_fx(track_number, 3, False)  # Disable the second effect on track 4
 
         elif current_part == 'C':
             # Cambiamos bajo
-            track_number = 3
+            track_number = 1
+            self.toggle_reaper_fx(track_number, 2, False)  # Disable the second effect on track 4
+            self.toggle_reaper_fx(track_number, 3, False)  # Disable the second effect on track 4
+            self.toggle_reaper_fx(track_number, 4, True)  # Enable the first effect on track 4
+            track_number = 8
             self.toggle_reaper_fx(track_number, 2, False)  # Disable the second effect on track 4
             self.toggle_reaper_fx(track_number, 3, False)  # Disable the second effect on track 4
             self.toggle_reaper_fx(track_number, 4, True)  # Enable the first effect on track 4
 
             # Cambiamos melody
-            track_number = 4
+            track_number = 3
+            self.toggle_reaper_fx(track_number, 1, False)
+            self.toggle_reaper_fx(track_number, 2, True)  # Enable the first effect on track 4
+            self.toggle_reaper_fx(track_number, 3, True)  # Disable the second effect on track 4
+            track_number = 10
             self.toggle_reaper_fx(track_number, 1, False)
             self.toggle_reaper_fx(track_number, 2, True)  # Enable the first effect on track 4
             self.toggle_reaper_fx(track_number, 3, True)  # Disable the second effect on track 4
 
+    def get_song_parts(self, midi_structure_enum, directory_path):
+        letters = list(set(letter for index, letter in midi_structure_enum))    # (A, B, C)
+        files_dict = {letter: None for letter in letters}    # {'A':None, 'B':None, 'C':None}
+
+        files = os.listdir(directory_path)
+        files.sort()
+        for file in files:
+            prefix = file.split('_')[0]
+            if prefix in files_dict and files_dict[prefix] is None:
+                files_dict[prefix] = os.path.join(directory_path, file)
+                files_dict[prefix].replace("\\", "/")
+
+        return files_dict
+
     def main(self):
         midi_structure_enum = list(enumerate(self.midi_structure))
+        file_path = f"{self.path_to_midis_for_structure}"
+        processed_file_path = f"{self.path_to_midis_processed}"
         current_part = midi_structure_enum[0][1]
         current_index = midi_structure_enum[0][0]
         part_counter = 2    # Contador para reproducir AA BB CC
         self.log.debug(f'Current part: {current_part}. Current index: {current_index}')
+
+        song_parts = self.get_song_parts(midi_structure_enum, file_path)
+        self.log.debug(f'Song parts = {song_parts}')
 
         # List available MIDI output ports
         output_ports = mido.get_output_names()
@@ -337,7 +385,6 @@ class Player:
             self.log.debug(port)
 
         outport = mido.open_output(str(config_player.LOOPMIDI_PORT))
-        history = []
         note_duration =0
         time_since_last_note = 0
 
@@ -346,28 +393,25 @@ class Player:
 
         while not self.sm['exit']:
             self.sm['ready_to_recive_midi_note'] = False
-            file_path = f"{self.path_to_midis_for_structure}"
-            files = [i for i in os.listdir(file_path) if "mid" in i and current_part in i]  # file names = A_timestamp
-            file = files[0]
-            self.log.info(f'Playing the file {file}')
-            history.append(file)
 
-            midi_file_path = os.path.join(file_path, file)
-            midi_file_path = midi_file_path.replace("\\", "/")
-            self.log.debug(f'midi_file_path = {midi_file_path}')
-            mid = MidiFile(midi_file_path)
+            file = song_parts.get(current_part)
+            self.log.info(f'Playing the file {file}')
+
+            #midi_file_path = file.replace("\\", "/")
+            #self.log.debug(f'midi_file_path = {midi_file_path}')
+            mid = MidiFile(file)
 
             if self.sm['exit']:
                 break
             try:
 
                 for msg in mid.play():  # Separate by channels
-                    if self.sm['exit']:
+                    if self.sm['exit'] or self.sm['song_ended']:
                         break
                     if not msg.is_meta:
 
                         msg = self.update(msg, velocity)
-                        self.log.debug(f'Sending message {msg}')
+                        #self.log.debug(f'Sending message {msg}')
 
                         outport.send(msg)  # Send the message using the first open port
 
@@ -402,15 +446,6 @@ class Player:
                 self.log.exception(f"Exception occurred: {str(e)}")
                 self.close_midi_ports()
 
-            if self.sm[config.CHANGE_DETECTED]:
-                self.sm[config.CHANGE_DETECTED] = False
-                velocity = 127
-            else:
-                velocity -= 40
-                self.log.debug(f'velocity changed to {velocity}...')
-
-            self.change_fx(current_part)
-
             part_counter -= 1
             if part_counter == 0:   # Ya repeti esta parte, voy a la siguiente
                 part_counter = 2
@@ -419,23 +454,40 @@ class Player:
                     self.log.info('Song ended... Starting over :)')
                     current_part = midi_structure_enum[0][1]
                     current_index = midi_structure_enum[0][0]
+
                 else:
                     current_part = midi_structure_enum[current_index][1]
+
                     self.log.debug('Next part: '.format(current_part))
 
-            if velocity <= 0:   # CHANGE SONG -- NEW EXPERIENCE
-                self.log.info('User left. Selecting new song...')
-                unique_history = set(history)
-                for song in unique_history:
-                    source_path = os.path.join(self.path_to_midis_for_structure, song)
-                    if os.path.exists(source_path):
-                        processed_path = os.path.join(self.path_to_midis_processed, song)
-                        shutil.move(source_path, processed_path)
-                        self.log.debug(f"Moved: {song}")
-                    else:
-                        self.log.warning(f"File not found: {song}")
-                history = []
-                velocity = 127
+            el_usuario_se_movio = self.sm[config.CHANGE_DETECTED]
+            if el_usuario_se_movio:
+                self.sm['song_ended'] = False
+                if velocity <= 0:   # CHANGE SONG -- NEW EXPERIENCE
 
+                    self.log.info('User left. Selecting new song...')
+                    for song in song_parts.values():
+                        if os.path.exists(file_path):
+                            os.makedirs(processed_file_path, exist_ok=True)
+                            destination_file = os.path.join(processed_file_path, os.path.basename(song))
+                            shutil.move(song, destination_file)
+                            self.log.debug(f"Moved: {song}")
+                        else:
+                            self.log.warning(f"File not found: {song}")
+                    song_parts = self.get_song_parts(midi_structure_enum, file_path)
+
+                self.sm[config.CHANGE_DETECTED] = False
+                velocity = 127
+            else:
+
+                new_note_off = mido.Message('note_on', note=self.last_note, velocity=0,
+                                            time=0, channel=8)
+                outport.send(new_note_off)
+                velocity = max(0, velocity-86)
+                self.log.debug(f'Velocity changed to {velocity}...')
+                if velocity==0:
+                    self.sm['song_ended'] = True
+                    self.sm["zoom_center_changed"]= True
+                    # self.change_fx(current_part)
         self.close_midi_ports()
         self.log.info("Player has finished")

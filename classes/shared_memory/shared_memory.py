@@ -31,6 +31,7 @@ class SharedMemory:
         shared_memory['fractal_note_dict'] = []
         shared_memory['fractal_player_finish'] = False
         shared_memory['note_velocity'] =1
-        shared_memory['cursor_position'] = []
+        shared_memory['cursor_position'] = [(0,0),"dibujando"]
         shared_memory['rgb'] = []
+        shared_memory['song_ended'] = False
         self.shared_memory=shared_memory
